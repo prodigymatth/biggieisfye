@@ -162,8 +162,8 @@ audio{display:none}
 <!-- HOME -->
 <div class="container" id="homeScreen">
   <h1>biggie bigs</h1>
-  <div class="buttonContainer">
 
+  <div class="buttonContainer">
     <button class="gameBtn" onclick="openGame('hoodaFrame')">HoodaMath</button>
     <button class="gameBtn" onclick="openGame('playFrame')">Playtropolis</button>
     <button class="gameBtn" onclick="openGame('gFrame')">GHub</button>
@@ -177,7 +177,6 @@ audio{display:none}
     <button class="gameBtn" onclick="openGame('hahaFrame')">Haha Games</button>
     <button class="gameBtn" onclick="openGame('gamaFrame')">Play Gama</button>
     <button class="gameBtn" onclick="openGame('agentFrame')">For Khalil</button>
-
   </div>
 </div>
 
@@ -199,7 +198,7 @@ audio{display:none}
 <audio id="lofi" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
 
 <script>
-let wl = localStorage.getItem("wl")==="1";
+let wl = localStorage.getItem("wl") === "1";
 
 const screen = document.getElementById("passwordScreen");
 const home = document.getElementById("homeScreen");
@@ -209,64 +208,93 @@ const audio = document.getElementById("lofi");
 const input = document.getElementById("secretInput");
 const zone = document.getElementById("secretZone");
 
+const frames = document.querySelectorAll("iframe,embed");
+
+/* SAVE ORIGINAL SRC */
+const originalSrcs = [];
+frames.forEach(f => originalSrcs.push(f.src));
+
 /* LOAD */
-window.onload=()=>{
-  if(wl){
-    zone.remove(); // disable trigger permanently
+window.onload = () => {
+  if (wl) {
+    if (zone) zone.remove();
     enter();
   }
 };
 
 /* ENTER */
-function enter(){
+function enter() {
   loader.classList.add("active");
-  setTimeout(()=>{
-    screen.style.display="none";
-    input.style.display="none";
-    zone.remove(); // remove after success
+
+  setTimeout(() => {
+    screen.style.display = "none";
+    input.style.display = "none";
+    if (zone) zone.remove();
     loader.classList.remove("active");
-    home.style.display="block";
-    audio.volume=.2;
+    home.style.display = "block";
+    audio.volume = 0.2;
     audio.play();
-  },1200);
+  }, 1200);
 }
 
-/* SECRET CLICK */
-zone.onclick=()=>{
-  input.style.display="block";
-  input.focus();
-};
+/* SECRET ZONE */
+if (zone) {
+  zone.onclick = () => {
+    input.style.display = "block";
+    input.focus();
+  };
+}
 
-/* CHECK CODE */
-input.addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
-    if(input.value==="hydration paper"){
-      localStorage.setItem("wl","1");
+/* CODE CHECK */
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    if (input.value === "hydration paper") {
+      localStorage.setItem("wl", "1");
       enter();
     } else {
-      input.value="";
+      input.value = "";
     }
   }
 });
 
 /* OPEN GAME */
-function openGame(id){
+function openGame(id) {
   loader.classList.add("active");
-  setTimeout(()=>{
-    home.style.display="none";
-    document.querySelectorAll("iframe,embed").forEach(e=>e.style.display="none");
-    document.getElementById(id).style.display="block";
-    homeBtn.style.display="block";
+
+  setTimeout(() => {
+    home.style.display = "none";
+    frames.forEach(f => f.style.display = "none");
+
+    const g = document.getElementById(id);
+    if (g) g.style.display = "block";
+
+    homeBtn.style.display = "block";
     loader.classList.remove("active");
-  },400);
+  }, 400);
 }
 
-/* HOME */
-function goHome(){
-  document.querySelectorAll("iframe,embed").forEach(e=>e.style.display="none");
-  home.style.display="block";
-  homeBtn.style.display="none";
+/* 🔥 HOME = FULL RESET */
+function goHome() {
+  homeBtn.style.display = "none";
+  home.style.display = "block";
+
+  frames.forEach((f, i) => {
+    f.style.display = "none";
+
+    const src = originalSrcs[i];
+    f.src = "";
+    setTimeout(() => {
+      f.src = src;
+    }, 50);
+  });
 }
+
+/* 🚨 PANIC KEY */
+document.addEventListener("keydown", e => {
+  if (e.key === "\\") {
+    window.location.href = "https://classroom.google.com/";
+  }
+});
 </script>
 
 </body>
