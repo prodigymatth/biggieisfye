@@ -240,7 +240,7 @@ zone.onclick=()=>{
 /* CHECK CODE */
 input.addEventListener("keydown",e=>{
   if(e.key==="Enter"){
-    if(input.value==="biggieisfye"){
+    if(input.value==="hydration paper"){
       localStorage.setItem("wl","1");
       enter();
     } else {
