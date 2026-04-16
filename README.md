@@ -7,12 +7,12 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
 
-/* BACKGROUND */
+/* BACKGROUND (GREEN) */
 body{
 min-height:100vh;
-background:linear-gradient(rgba(30,0,70,.7),rgba(10,0,30,.9)),
+background:linear-gradient(rgba(0,60,0,.7),rgba(0,20,0,.95)),
 url('https://media.gettyimages.com/id/881752658/video/journey-through-galaxy.jpg?s=640x640&k=20&c=ITfk5mu21pnyUjb7tTndTm8LMBqpPS4YBMY2Il_nGyQ=') center/cover fixed;
-color:white;
+color:#d4ffd4;
 overflow-x:hidden;
 }
 
@@ -22,37 +22,45 @@ position:fixed;inset:0;
 display:flex;
 justify-content:center;
 align-items:center;
-background:rgba(40,0,80,.95);
+background:rgba(0,50,0,.95);
 z-index:999;
 }
 
 .passwordBox{
-background:rgba(60,0,110,.95);
+background:rgba(0,80,0,.95);
 padding:40px;
 border-radius:18px;
 text-align:center;
 width:320px;
+box-shadow:0 0 25px #00ff88;
 }
 
 #accessText{font-size:26px}
 
-/* SECRET */
-#secretClick{
-position:fixed;top:0;right:0;
-width:100px;height:100px;
+/* SECRET ZONE */
+#secretZone{
+position:fixed;
+bottom:0;
+left:0;
+width:80px;
+height:80px;
 z-index:1000;
 }
 
-#whitelistBtn{
-position:fixed;top:15px;right:15px;
-padding:8px 12px;
-background:#7c3aed;
-color:white;
-border:0;
+/* SECRET INPUT */
+#secretInput{
+position:fixed;
+bottom:20px;
+left:20px;
+padding:10px;
 border-radius:8px;
+border:none;
+outline:none;
 display:none;
 z-index:1001;
-cursor:pointer;
+background:#002b00;
+color:#00ff88;
+box-shadow:0 0 10px #00ff88;
 }
 
 /* LOADER */
@@ -61,8 +69,8 @@ position:fixed;inset:0;
 display:flex;
 justify-content:center;
 align-items:center;
-background:#2e0255;
-color:white;
+background:#001a00;
+color:#00ff88;
 font-size:28px;
 transform:translateX(-100%);
 transition:.25s;
@@ -72,38 +80,52 @@ z-index:15;
 
 /* HOME */
 .container{display:none;text-align:center;padding-top:70px}
-h1{font-size:70px}
+h1{
+font-size:70px;
+text-shadow:0 0 20px #00ff88;
+}
 
+/* BUTTONS */
 .buttonContainer{
 display:flex;
 flex-direction:column;
-gap:10px;
+gap:12px;
 width:280px;
 margin:auto;
 }
 
 .gameBtn{
-padding:13px;
-background:#5a00a5;
-color:white;
-border:0;
+padding:14px;
+background:#003d00;
+color:#00ff88;
+border:1px solid #00ff88;
 cursor:pointer;
+border-radius:10px;
+transition:.2s;
+box-shadow:0 0 10px #00ff88;
 }
 
-/* HOME BUTTON (RESTORED EXACT STYLE) */
+.gameBtn:hover{
+transform:scale(1.05);
+background:#005500;
+box-shadow:0 0 20px #00ff88;
+}
+
+/* HOME BUTTON */
 #homeBtn{
 position:fixed;
 top:15px;
 left:15px;
 padding:6px 10px;
 font-size:13px;
-background:rgba(255,255,255,.08);
-border:1px solid rgba(0,0,0,.2);
-border-radius:4px;
-color:#ccc;
+background:#002b00;
+border:1px solid #00ff88;
+border-radius:6px;
+color:#00ff88;
 display:none;
 z-index:20;
 cursor:pointer;
+box-shadow:0 0 10px #00ff88;
 }
 
 /* GAME VIEW */
@@ -123,23 +145,23 @@ audio{display:none}
 <!-- ACCESS -->
 <div id="passwordScreen">
   <div class="passwordBox">
-    <h2 id="accessText">Checking Access...</h2>
+    <h2 id="accessText">not white listed unable to join</h2>
   </div>
 </div>
 
 <!-- SECRET -->
-<div id="secretClick"></div>
-<button id="whitelistBtn">biggeisfye</button>
+<div id="secretZone"></div>
+<input id="secretInput" placeholder="enter code..." />
 
 <!-- LOADER -->
-<div id="loader">biggie</div>
+<div id="loader">onclu</div>
 
 <!-- HOME BUTTON -->
 <button id="homeBtn" onclick="goHome()">home</button>
 
-<!-- HOME MENU -->
+<!-- HOME -->
 <div class="container" id="homeScreen">
-  <h1>fye</h1>
+  <h1>onclu</h1>
   <div class="buttonContainer">
 
     <button class="gameBtn" onclick="openGame('hoodaFrame')">HoodaMath</button>
@@ -159,7 +181,7 @@ audio{display:none}
   </div>
 </div>
 
-<!-- ALL IFRAME GAMES -->
+<!-- GAMES -->
 <iframe id="hoodaFrame" src="https://www.hoodamath.com/"></iframe>
 <iframe id="playFrame" src="https://www.playtropolis.com"></iframe>
 <iframe id="gFrame" src="https://ghub-light.neocities.org/"></iframe>
@@ -178,19 +200,21 @@ audio{display:none}
 
 <script>
 let wl = localStorage.getItem("wl")==="1";
-let clicks = 0;
 
 const screen = document.getElementById("passwordScreen");
 const home = document.getElementById("homeScreen");
 const loader = document.getElementById("loader");
-const btn = document.getElementById("whitelistBtn");
 const homeBtn = document.getElementById("homeBtn");
 const audio = document.getElementById("lofi");
+const input = document.getElementById("secretInput");
+const zone = document.getElementById("secretZone");
 
-/* CHECK ACCESS */
+/* LOAD */
 window.onload=()=>{
-  if(wl) enter();
-  else document.getElementById("accessText").innerText="not white listed unable to join";
+  if(wl){
+    zone.remove(); // disable trigger permanently
+    enter();
+  }
 };
 
 /* ENTER */
@@ -198,6 +222,8 @@ function enter(){
   loader.classList.add("active");
   setTimeout(()=>{
     screen.style.display="none";
+    input.style.display="none";
+    zone.remove(); // remove after success
     loader.classList.remove("active");
     home.style.display="block";
     audio.volume=.2;
@@ -205,17 +231,23 @@ function enter(){
   },1200);
 }
 
-/* SECRET CLICK (9 taps) */
-document.getElementById("secretClick").onclick=()=>{
-  if(++clicks===9) btn.style.display="block";
+/* SECRET CLICK */
+zone.onclick=()=>{
+  input.style.display="block";
+  input.focus();
 };
 
-/* WI BUTTON (DISAPPEARS AFTER CLICK) */
-btn.onclick=()=>{
-  localStorage.setItem("wl","1");
-  btn.style.display="none";
-  enter();
-};
+/* CHECK CODE */
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    if(input.value==="biggieisfye"){
+      localStorage.setItem("wl","1");
+      enter();
+    } else {
+      input.value="";
+    }
+  }
+});
 
 /* OPEN GAME */
 function openGame(id){
@@ -229,7 +261,7 @@ function openGame(id){
   },400);
 }
 
-/* HOME BUTTON (RESTORED EXACT BEHAVIOR) */
+/* HOME */
 function goHome(){
   document.querySelectorAll("iframe,embed").forEach(e=>e.style.display="none");
   home.style.display="block";
