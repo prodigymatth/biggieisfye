@@ -154,14 +154,14 @@ audio{display:none}
 <input id="secretInput" placeholder="enter code..." />
 
 <!-- LOADER -->
-<div id="loader">onclu</div>
+<div id="loader">biggie bigs</div>
 
 <!-- HOME BUTTON -->
 <button id="homeBtn" onclick="goHome()">home</button>
 
 <!-- HOME -->
 <div class="container" id="homeScreen">
-  <h1>onclu</h1>
+  <h1>biggie bigs</h1>
   <div class="buttonContainer">
 
     <button class="gameBtn" onclick="openGame('hoodaFrame')">HoodaMath</button>
