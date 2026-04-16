@@ -129,17 +129,17 @@ audio{display:none}
 
 <!-- SECRET -->
 <div id="secretClick"></div>
-<button id="whitelistBtn">wi</button>
+<button id="whitelistBtn">biggeisfye</button>
 
 <!-- LOADER -->
-<div id="loader">onclu</div>
+<div id="loader">biggie</div>
 
 <!-- HOME BUTTON -->
 <button id="homeBtn" onclick="goHome()">home</button>
 
 <!-- HOME MENU -->
 <div class="container" id="homeScreen">
-  <h1>onclu</h1>
+  <h1>fye</h1>
   <div class="buttonContainer">
 
     <button class="gameBtn" onclick="openGame('hoodaFrame')">HoodaMath</button>
