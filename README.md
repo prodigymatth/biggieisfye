@@ -1,301 +1,278 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Prodigy Math Lesson</title>
+<title>Prodigy Math Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+    @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600&display=swap');
 
-/* BACKGROUND (GREEN) */
-body{
-min-height:100vh;
-background:linear-gradient(rgba(0,60,0,.7),rgba(0,20,0,.95)),
-url('https://media.gettyimages.com/id/881752658/video/journey-through-galaxy.jpg?s=640x640&k=20&c=ITfk5mu21pnyUjb7tTndTm8LMBqpPS4YBMY2Il_nGyQ=') center/cover fixed;
-color:#d4ffd4;
-overflow-x:hidden;
-}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-/* ACCESS */
-#passwordScreen{
-position:fixed;inset:0;
-display:flex;
-justify-content:center;
-align-items:center;
-background:rgba(0,50,0,.95);
-z-index:999;
-}
+    body {
+        min-height: 100vh;
+        background: #0c0c0c;
+        color: #f5f5f5;
+        font-family: 'Inter', system-ui, sans-serif;
+        overflow: hidden;
+        position: relative;
+    }
 
-.passwordBox{
-background:rgba(0,80,0,.95);
-padding:40px;
-border-radius:18px;
-text-align:center;
-width:320px;
-box-shadow:0 0 25px #00ff88;
-}
+    /* Brighter elegant background */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(255,255,255,0.12) 0%, transparent 60%),
+            radial-gradient(circle at 80% 70%, rgba(255,255,255,0.09) 0%, transparent 65%);
+        z-index: -1;
+        animation: bgBreath 28s ease infinite alternate;
+    }
 
-#accessText{font-size:26px}
+    /* Splash Screen */
+    #splashScreen {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(12,12,12,0.98);
+        z-index: 1000;
+        transition: opacity 1.8s ease;
+    }
 
-/* SECRET ZONE */
-#secretZone{
-position:fixed;
-bottom:0;
-left:0;
-width:80px;
-height:80px;
-z-index:1000;
-}
+    .splashContent {
+        text-align: center;
+    }
 
-/* SECRET INPUT */
-#secretInput{
-position:fixed;
-bottom:20px;
-left:20px;
-padding:10px;
-border-radius:8px;
-border:none;
-outline:none;
-display:none;
-z-index:1001;
-background:#002b00;
-color:#00ff88;
-box-shadow:0 0 10px #00ff88;
-}
+    .splashContent h1 {
+        font-family: 'Great Vibes', cursive;
+        font-size: 92px;
+        font-weight: 400;
+        letter-spacing: -2px;
+        color: #ffffff;
+        text-shadow: 0 0 40px rgba(255,255,255,0.4);
+        margin-bottom: 12px;
+        animation: titleFloat 6s ease infinite alternate;
+    }
 
-/* LOADER */
-#loader{
-position:fixed;inset:0;
-display:flex;
-justify-content:center;
-align-items:center;
-background:#001a00;
-color:#00ff88;
-font-size:28px;
-transform:translateX(-100%);
-transition:.25s;
-z-index:15;
-}
-#loader.active{transform:translateX(0)}
+    .splashContent p {
+        font-size: 18px;
+        color: #cccccc;
+        letter-spacing: 2px;
+        opacity: 0;
+        animation: fadeInText 2s ease 1s forwards;
+    }
 
-/* HOME */
-.container{display:none;text-align:center;padding-top:70px}
-h1{
-font-size:70px;
-text-shadow:0 0 20px #00ff88;
-}
+    /* Main Menu */
+    .container {
+        display: none;
+        height: 100vh;
+        overflow-y: auto;
+        padding: 130px 25px 100px;
+        text-align: center;
+        scrollbar-width: thin;
+        scrollbar-color: #777 #1f1f1f;
+    }
 
-/* BUTTONS */
-.buttonContainer{
-display:flex;
-flex-direction:column;
-gap:12px;
-width:280px;
-margin:auto;
-}
+    .container::-webkit-scrollbar-thumb {
+        background: #777;
+        border-radius: 10px;
+    }
 
-.gameBtn{
-padding:14px;
-background:#003d00;
-color:#00ff88;
-border:1px solid #00ff88;
-cursor:pointer;
-border-radius:10px;
-transition:.2s;
-box-shadow:0 0 10px #00ff88;
-}
+    h2 {
+        font-family: 'Great Vibes', cursive;
+        font-size: 82px;
+        font-weight: 400;
+        color: #ffffff;
+        margin-bottom: 95px;
+        text-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        animation: titleFloat 7s ease infinite alternate;
+    }
 
-.gameBtn:hover{
-transform:scale(1.05);
-background:#005500;
-box-shadow:0 0 20px #00ff88;
-}
+    .buttonContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        max-width: 410px;
+        margin: 0 auto;
+    }
 
-/* HOME BUTTON */
-#homeBtn{
-position:fixed;
-top:15px;
-left:15px;
-padding:6px 10px;
-font-size:13px;
-background:#002b00;
-border:1px solid #00ff88;
-border-radius:6px;
-color:#00ff88;
-display:none;
-z-index:20;
-cursor:pointer;
-box-shadow:0 0 10px #00ff88;
-}
+    .gameBtn {
+        padding: 21px 34px;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.22);
+        color: #f0f0f0;
+        font-size: 17.5px;
+        font-weight: 500;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+    }
 
-/* GAME VIEW */
-iframe,embed{
-position:fixed;inset:0;
-width:100%;height:100%;
-display:none;
-border:0;
-}
+    .gameBtn:hover {
+        background: rgba(255,255,255,0.18);
+        border-color: rgba(255,255,255,0.55);
+        transform: translateY(-7px);
+        box-shadow: 0 22px 50px rgba(0,0,0,0.7);
+    }
 
-audio{display:none}
+    #homeBtn {
+        position: fixed;
+        top: 32px;
+        left: 32px;
+        padding: 12px 28px;
+        font-size: 15px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.28);
+        border-radius: 12px;
+        color: #f0f0f0;
+        cursor: pointer;
+        display: none;
+        z-index: 300;
+        transition: all 0.3s ease;
+    }
+
+    #homeBtn:hover {
+        background: rgba(255,255,255,0.18);
+        transform: scale(1.06);
+    }
+
+    iframe, embed {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+        border: none;
+        animation: gameEnter 0.8s ease forwards;
+    }
+
+    /* Animations */
+    @keyframes bgBreath {
+        from { opacity: 0.75; }
+        to { opacity: 0.95; }
+    }
+
+    @keyframes titleFloat {
+        from { transform: translateY(-8px); }
+        to { transform: translateY(8px); }
+    }
+
+    @keyframes fadeInText {
+        to { opacity: 1; }
+    }
+
+    @keyframes gameEnter {
+        from { opacity: 0; transform: scale(1.05); filter: blur(12px); }
+        to { opacity: 1; transform: scale(1); filter: blur(0); }
+    }
 </style>
 </head>
-
 <body>
 
-<!-- ACCESS -->
-<div id="passwordScreen">
-  <div class="passwordBox">
-    <h2 id="accessText">not white listed unable to join</h2>
-  </div>
-</div>
+    <!-- Splash Screen -->
+    <div id="splashScreen">
+        <div class="splashContent">
+            <h1>Prodigy</h1>
+            <p>Mathematics Reimagined</p>
+        </div>
+    </div>
 
-<!-- SECRET -->
-<div id="secretZone"></div>
-<input id="secretInput" placeholder="enter code..." />
+    <!-- Home Button -->
+    <button id="homeBtn" onclick="goHome()">← Menu</button>
 
-<!-- LOADER -->
-<div id="loader">biggie bigs</div>
+    <!-- Main Menu -->
+    <div class="container" id="homeScreen">
+        <h2>Prodigy</h2>
+        <div class="buttonContainer">
+            <button class="gameBtn" onclick="openGame('hoodaFrame')">HoodaMath</button>
+            <button class="gameBtn" onclick="openGame('playFrame')">Playtropolis</button>
+            <button class="gameBtn" onclick="openGame('gFrame')">GHub</button>
+            <button class="gameBtn" onclick="openGame('minecraftFrame')">Minecraft</button>
+            <button class="gameBtn" onclick="openGame('infiniteFrame')">Infinite Craft</button>
+            <button class="gameBtn" onclick="openGame('soundboardFrame')">Soundboard</button>
+            <button class="gameBtn" onclick="openGame('mathFrame')">Coolmath Games</button>
+            <button class="gameBtn" onclick="openGame('cheeseFrame')">Stan The Cheese Man</button>
+            <button class="gameBtn" onclick="openGame('basketFrame')">Basket Random</button>
+            <button class="gameBtn" onclick="openGame('buildnowFrame')">Build Now GG</button>
+            <button class="gameBtn" onclick="openGame('hahaFrame')">Haha Games</button>
+            <button class="gameBtn" onclick="openGame('gamaFrame')">Play Gama</button>
+            <button class="gameBtn" onclick="openGame('agentFrame')">Agent Walker</button>
+        </div>
+    </div>
 
-<!-- HOME BUTTON -->
-<button id="homeBtn" onclick="goHome()">home</button>
-
-<!-- HOME -->
-<div class="container" id="homeScreen">
-  <h1>biggie bigs</h1>
-
-  <div class="buttonContainer">
-    <button class="gameBtn" onclick="openGame('hoodaFrame')">HoodaMath</button>
-    <button class="gameBtn" onclick="openGame('playFrame')">Playtropolis</button>
-    <button class="gameBtn" onclick="openGame('gFrame')">GHub</button>
-    <button class="gameBtn" onclick="openGame('minecraftFrame')">Minecraft</button>
-    <button class="gameBtn" onclick="openGame('infiniteFrame')">Infinite Craft</button>
-    <button class="gameBtn" onclick="openGame('soundboardFrame')">Soundboard</button>
-    <button class="gameBtn" onclick="openGame('mathFrame')">Coolmath Games</button>
-    <button class="gameBtn" onclick="openGame('cheeseFrame')">Stan The Cheese Man</button>
-    <button class="gameBtn" onclick="openGame('basketFrame')">Basket Random</button>
-    <button class="gameBtn" onclick="openGame('buildnowFrame')">Build Now GG</button>
-    <button class="gameBtn" onclick="openGame('hahaFrame')">Haha Games</button>
-    <button class="gameBtn" onclick="openGame('gamaFrame')">Play Gama</button>
-    <button class="gameBtn" onclick="openGame('agentFrame')">For Khalil</button>
-  </div>
-</div>
-
-<!-- GAMES -->
-<iframe id="hoodaFrame" src="https://www.hoodamath.com/"></iframe>
-<iframe id="playFrame" src="https://www.playtropolis.com"></iframe>
-<iframe id="gFrame" src="https://ghub-light.neocities.org/"></iframe>
-<iframe id="minecraftFrame" src="https://eaglercraft.com/"></iframe>
-<embed id="infiniteFrame" src="https://infinite-craft.org/infinite-craft/">
-<iframe id="soundboardFrame" src="https://www.myinstants.com/en/index/us/"></iframe>
-<iframe id="mathFrame" src="https://www.coolmathgames.com/"></iframe>
-<iframe id="cheeseFrame" src="https://stanthecheeseman.github.io/"></iframe>
-<iframe id="basketFrame" src="https://www.twoplayergames.org/game/basket-random"></iframe>
-<iframe id="buildnowFrame" src="https://buildnow-gg.io/"></iframe>
-<iframe id="hahaFrame" src="https://www.hahagames.com/"></iframe>
-<iframe id="gamaFrame" src="https://playgama.com"></iframe>
-<iframe id="agentFrame" src="https://www.twoplayergames.org/game/agent-walker-vs-skibidi-toilets"></iframe>
-
-<audio id="lofi" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
+    <!-- Games -->
+    <iframe id="hoodaFrame" src="https://www.hoodamath.com/"></iframe>
+    <iframe id="playFrame" src="https://www.playtropolis.com"></iframe>
+    <iframe id="gFrame" src="https://ghub-light.neocities.org/"></iframe>
+    <iframe id="minecraftFrame" src="https://eaglercraft.com/"></iframe>
+    <embed id="infiniteFrame" src="https://infinite-craft.org/infinite-craft/"></embed>
+    <iframe id="soundboardFrame" src="https://www.myinstants.com/en/index/us/"></iframe>
+    <iframe id="mathFrame" src="https://www.coolmathgames.com/"></iframe>
+    <iframe id="cheeseFrame" src="https://stanthecheeseman.github.io/"></iframe>
+    <iframe id="basketFrame" src="https://www.twoplayergames.org/game/basket-random"></iframe>
+    <iframe id="buildnowFrame" src="https://buildnow-gg.io/"></iframe>
+    <iframe id="hahaFrame" src="https://www.hahagames.com/"></iframe>
+    <iframe id="gamaFrame" src="https://playgama.com"></iframe>
+    <iframe id="agentFrame" src="https://www.twoplayergames.org/game/agent-walker-vs-skibidi-toilets"></iframe>
 
 <script>
-let wl = localStorage.getItem("wl") === "1";
+    const correctCode = "I hate math";
+    let typed = "";
 
-const screen = document.getElementById("passwordScreen");
-const home = document.getElementById("homeScreen");
-const loader = document.getElementById("loader");
-const homeBtn = document.getElementById("homeBtn");
-const audio = document.getElementById("lofi");
-const input = document.getElementById("secretInput");
-const zone = document.getElementById("secretZone");
+    // Secret unlock
+    document.addEventListener("keydown", function(e) {
+        if (e.key.length === 1 || e.key === " ") {
+            typed += e.key;
+        }
 
-const frames = document.querySelectorAll("iframe,embed");
+        if (typed.includes(correctCode)) {
+            const splash = document.getElementById("splashScreen");
+            splash.style.opacity = "0";
+            setTimeout(() => {
+                splash.style.display = "none";
+                document.getElementById("homeScreen").style.display = "block";
+                typed = "";
+            }, 1700);
+        }
 
-/* SAVE ORIGINAL SRC */
-const originalSrcs = [];
-frames.forEach(f => originalSrcs.push(f.src));
+        if (typed.length > 40) typed = typed.slice(-40);
+    });
 
-/* LOAD */
-window.onload = () => {
-  if (wl) {
-    if (zone) zone.remove();
-    enter();
-  }
-};
+    const home = document.getElementById("homeScreen");
+    const homeBtn = document.getElementById("homeBtn");
+    const frames = document.querySelectorAll("iframe, embed");
+    const originalSrcs = Array.from(frames).map(f => f.src);
 
-/* ENTER */
-function enter() {
-  loader.classList.add("active");
-
-  setTimeout(() => {
-    screen.style.display = "none";
-    input.style.display = "none";
-    if (zone) zone.remove();
-    loader.classList.remove("active");
-    home.style.display = "block";
-    audio.volume = 0.2;
-    audio.play();
-  }, 1200);
-}
-
-/* SECRET ZONE */
-if (zone) {
-  zone.onclick = () => {
-    input.style.display = "block";
-    input.focus();
-  };
-}
-
-/* CODE CHECK */
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    if (input.value === "expo white") {
-      localStorage.setItem("wl", "1");
-      enter();
-    } else {
-      input.value = "";
+    function openGame(id) {
+        home.style.display = "none";
+        frames.forEach(f => f.style.display = "none");
+        document.getElementById(id).style.display = "block";
+        homeBtn.style.display = "block";
     }
-  }
-});
 
-/* OPEN GAME */
-function openGame(id) {
-  loader.classList.add("active");
+    function goHome() {
+        homeBtn.style.display = "none";
+        home.style.display = "block";
+        frames.forEach((f, i) => {
+            f.style.display = "none";
+            f.src = originalSrcs[i];
+        });
+    }
 
-  setTimeout(() => {
-    home.style.display = "none";
-    frames.forEach(f => f.style.display = "none");
-
-    const g = document.getElementById(id);
-    if (g) g.style.display = "block";
-
-    homeBtn.style.display = "block";
-    loader.classList.remove("active");
-  }, 400);
-}
-
-/* 🔥 HOME = FULL RESET */
-function goHome() {
-  homeBtn.style.display = "none";
-  home.style.display = "block";
-
-  frames.forEach((f, i) => {
-    f.style.display = "none";
-
-    const src = originalSrcs[i];
-    f.src = "";
-    setTimeout(() => {
-      f.src = src;
-    }, 50);
-  });
-}
-
-/* 🚨 PANIC KEY */
-document.addEventListener("keydown", e => {
-  if (e.key === "\\") {
-    window.location.href = "https://classroom.google.com/";
-  }
-});
+    // Panic button: press \ to open Google Classroom
+    document.addEventListener("keydown", e => {
+        if (e.key === "\\") {
+            window.location.href = "https://classroom.google.com/";
+        }
+    });
 </script>
-
 </body>
 </html>
