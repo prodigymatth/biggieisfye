@@ -248,7 +248,7 @@ if (zone) {
 /* CODE CHECK */
 input.addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    if (input.value === "hydration paper") {
+    if (input.value === "expo white") {
       localStorage.setItem("wl", "1");
       enter();
     } else {
