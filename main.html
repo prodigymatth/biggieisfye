@@ -1,207 +1,531 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Prodigy Math Platform</title>
+<title>Prodigy</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600&display=swap');
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+:root {
+  --bg:     #07070f;
+  --card:   #0f0f1c;
+  --border: #1e1e35;
+  --text:   #e0e0ff;
+  --muted:  #4a4a7a;
+  --cyan:   #00f5ff;
+  --pink:   #ff2d78;
+  --yellow: #ffe600;
+  --green:  #00ff88;
 }
 
-body{
-    min-height:100vh;
-    background:#0c0c0c;
-    color:#f5f5f5;
-    font-family:'Inter',sans-serif;
-    overflow:hidden;
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  overflow: hidden;
 }
 
-/* background glow */
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:
-    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.12), transparent 60%),
-    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.09), transparent 65%);
-    z-index:-1;
+/* scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
 }
 
-/* splash */
-#splashScreen{
-    position:fixed;
-    inset:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#0c0c0c;
-    z-index:10;
-    transition:opacity 1s ease;
+/* grid bg */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+  pointer-events: none;
 }
 
-.splashContent h1{
-    font-family:'Great Vibes',cursive;
-    font-size:90px;
+/* ── SPLASH ── */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transition: opacity 0.6s ease;
 }
 
-/* menu */
-.container{
-    display:none;
-    height:100vh;
-    overflow-y:auto;
-    padding:130px 20px;
-    text-align:center;
+.splash-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 120px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 0 0 30px var(--cyan), 0 0 80px rgba(0,245,255,0.3);
+  opacity: 0;
+  animation: glowIn 0.6s ease 0.3s forwards;
+}
+@keyframes glowIn {
+  from { opacity:0; transform:scale(0.92); }
+  to   { opacity:1; transform:scale(1); }
 }
 
-h2{
-    font-family:'Great Vibes',cursive;
-    font-size:80px;
-    margin-bottom:80px;
+.splash-sub {
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  opacity: 0;
+  animation: fadeUp 0.5s ease 0.8s forwards;
 }
 
-/* buttons */
-.buttonContainer{
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-    max-width:400px;
-    margin:auto;
+.splash-loader {
+  width: 240px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeUp 0.4s ease 1s forwards;
+}
+.splash-loader-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--pink));
+  width: 0;
+  box-shadow: 0 0 10px var(--cyan);
+  animation: load 1.5s ease 1.1s forwards;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+@keyframes load   { to { width:100%; } }
+
+/* ── HOME ── */
+#home {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.gameBtn{
-    padding:20px;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:15px;
-    color:white;
-    cursor:pointer;
-    transition:0.3s;
+.topbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,7,15,0.95);
+  backdrop-filter: blur(12px);
 }
 
-.gameBtn:hover{
-    transform:translateY(-4px);
-    background:rgba(255,255,255,0.15);
+.topbar-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 34px;
+  letter-spacing: 0.12em;
+  color: #fff;
+  text-shadow: 0 0 18px var(--cyan);
 }
 
-/* chat button */
-.chatBtn{
-    background:linear-gradient(135deg,#6a5cff,#9f7bff);
+.topbar-hint {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
 }
 
-/* home button */
-#homeBtn{
-    position:fixed;
-    top:25px;
-    left:25px;
-    display:none;
-    padding:10px 18px;
-    background:rgba(255,255,255,0.1);
-    border:1px solid rgba(255,255,255,0.2);
-    color:white;
-    cursor:pointer;
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 28px 40px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.scroll-area::-webkit-scrollbar { width:4px; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius:4px; }
+
+.section { margin-bottom: 32px; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
-/* games */
-iframe,embed{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    display:none;
-    border:none;
+.section-tag {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--cyan);
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 11px;
+}
+
+/* ── CARD ── */
+.gcard {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 14px 16px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  text-align: center;
+  user-select: none;
+  opacity: 0;
+  animation: cardIn 0.3s ease forwards;
+}
+
+.gcard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--c, var(--cyan));
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 0 14px var(--c, var(--cyan));
+}
+
+.gcard:hover {
+  transform: translateY(-5px);
+  border-color: var(--c, var(--cyan));
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.gcard:hover::before { opacity: 1; }
+.gcard:active { transform: scale(0.97); }
+
+.gcard-emoji {
+  font-size: 36px;
+  line-height: 1;
+  display: block;
+  margin-bottom: 10px;
+  transition: transform 0.2s ease;
+}
+.gcard:hover .gcard-emoji { transform: scale(1.18) rotate(-4deg); }
+
+.gcard-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.gcard-desc {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* featured wide card */
+.gcard.wide {
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+  padding: 18px 22px;
+}
+.gcard.wide .gcard-emoji { font-size:42px; margin:0; flex-shrink:0; }
+.gcard.wide:hover .gcard-emoji { transform: scale(1.1) rotate(0); }
+.gcard.wide .gcard-name { font-size:15px; }
+.gcard.wide .gcard-desc { font-size:11px; margin-top:5px; }
+
+/* stagger */
+.gcard:nth-child(1)  { animation-delay:.04s }
+.gcard:nth-child(2)  { animation-delay:.08s }
+.gcard:nth-child(3)  { animation-delay:.12s }
+.gcard:nth-child(4)  { animation-delay:.16s }
+.gcard:nth-child(5)  { animation-delay:.20s }
+.gcard:nth-child(6)  { animation-delay:.24s }
+.gcard:nth-child(7)  { animation-delay:.28s }
+.gcard:nth-child(8)  { animation-delay:.32s }
+.gcard:nth-child(9)  { animation-delay:.36s }
+.gcard:nth-child(10) { animation-delay:.40s }
+.gcard:nth-child(11) { animation-delay:.44s }
+.gcard:nth-child(12) { animation-delay:.48s }
+.gcard:nth-child(13) { animation-delay:.52s }
+
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── HOME BTN (in-game) ── */
+#homeBtn {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px 9px 12px;
+  background: rgba(7,7,15,0.92);
+  border: 1px solid var(--cyan);
+  border-radius: 8px;
+  color: var(--cyan);
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 16px rgba(0,245,255,0.2);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+#homeBtn:hover {
+  background: rgba(0,245,255,0.1);
+  box-shadow: 0 0 28px rgba(0,245,255,0.4);
+  transform: translateX(-2px);
+}
+
+/* ── IFRAMES ── */
+iframe {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: none;
+  z-index: 20;
 }
 </style>
 </head>
-
 <body>
 
-<!-- splash -->
-<div id="splashScreen">
-    <div class="splashContent">
-        <h1>Prodigy</h1>
-    </div>
+<div class="grid-bg"></div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">Prodigy</div>
+  <div class="splash-sub">Game Hub</div>
+  <div class="splash-loader"><div class="splash-loader-fill"></div></div>
 </div>
 
-<!-- home button -->
-<button id="homeBtn" onclick="goHome()">← Menu</button>
+<!-- HOME BTN -->
+<button id="homeBtn" onclick="goHome()">
+  ← Menu
+</button>
 
-<!-- menu -->
-<div class="container" id="homeScreen">
-    <h2>Prodigy</h2>
+<!-- HOME -->
+<div id="home">
+  <div class="topbar">
+    <span class="topbar-logo">Prodigy</span>
+    <span class="topbar-hint">Press \ to bail fast</span>
+  </div>
 
-    <div class="buttonContainer">
+  <div class="scroll-area">
 
-        <!-- CHAT -->
-        <button class="gameBtn chatBtn" onclick="openChat()">💬 Chat</button>
-
-        <!-- GAMES -->
-        <button class="gameBtn" onclick="openGame('hoodaFrame')">HoodaMath</button>
-        <button class="gameBtn" onclick="openGame('playFrame')">Playtropolis</button>
-        <button class="gameBtn" onclick="openGame('gFrame')">GHub</button>
-        <button class="gameBtn" onclick="openGame('minecraftFrame')">Minecraft</button>
-        <button class="gameBtn" onclick="openGame('infiniteFrame')">Infinite Craft</button>
-
+    <!-- AI -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-tag">Assistant</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="game-grid">
+        <div class="gcard wide" style="--c:#a78bfa" onclick="openChat()">
+          <span class="gcard-emoji">🤖</span>
+          <div>
+            <div class="gcard-name">AI Chat</div>
+            <div class="gcard-desc">Ask anything • Homework help</div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- GAME SITES -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-tag">Game Sites</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="game-grid">
+        <div class="gcard" style="--c:#00f5ff" onclick="openGame('hooda')">
+          <span class="gcard-emoji">🧮</span>
+          <div class="gcard-name">HoodaMath</div>
+          <div class="gcard-desc">500+ games</div>
+        </div>
+        <div class="gcard" style="--c:#ff2d78" onclick="openGame('ghub')">
+          <span class="gcard-emoji">🎮</span>
+          <div class="gcard-name">GHub</div>
+          <div class="gcard-desc">Unblocked hub</div>
+        </div>
+        <div class="gcard" style="--c:#ffe600" onclick="openGame('play')">
+          <span class="gcard-emoji">🕹️</span>
+          <div class="gcard-name">Playtropolis</div>
+          <div class="gcard-desc">Arcade</div>
+        </div>
+        <div class="gcard" style="--c:#00ff88" onclick="openGame('poki')">
+          <span class="gcard-emoji">🎯</span>
+          <div class="gcard-name">Poki</div>
+          <div class="gcard-desc">Free browser games</div>
+        </div>
+        <div class="gcard" style="--c:#f97316" onclick="openGame('crazy')">
+          <span class="gcard-emoji">🤪</span>
+          <div class="gcard-name">CrazyGames</div>
+          <div class="gcard-desc">Tons of games</div>
+        </div>
+        <div class="gcard" style="--c:#a78bfa" onclick="openGame('itch')">
+          <span class="gcard-emoji">👾</span>
+          <div class="gcard-name">itch.io</div>
+          <div class="gcard-desc">Indie games</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- .IO GAMES -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-tag">.io Games</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="game-grid">
+        <div class="gcard" style="--c:#00f5ff" onclick="openGame('slither')">
+          <span class="gcard-emoji">🐍</span>
+          <div class="gcard-name">Slither.io</div>
+          <div class="gcard-desc">Snake battle</div>
+        </div>
+        <div class="gcard" style="--c:#ff2d78" onclick="openGame('agar')">
+          <span class="gcard-emoji">🟣</span>
+          <div class="gcard-name">Agar.io</div>
+          <div class="gcard-desc">Eat & grow</div>
+        </div>
+        <div class="gcard" style="--c:#ffe600" onclick="openGame('krunker')">
+          <span class="gcard-emoji">🔫</span>
+          <div class="gcard-name">Krunker.io</div>
+          <div class="gcard-desc">FPS shooter</div>
+        </div>
+        <div class="gcard" style="--c:#00ff88" onclick="openGame('skribbl')">
+          <span class="gcard-emoji">🎨</span>
+          <div class="gcard-name">Skribbl.io</div>
+          <div class="gcard-desc">Draw & guess</div>
+        </div>
+        <div class="gcard" style="--c:#f97316" onclick="openGame('paper')">
+          <span class="gcard-emoji">✏️</span>
+          <div class="gcard-name">Paper.io 2</div>
+          <div class="gcard-desc">Territory</div>
+        </div>
+        <div class="gcard" style="--c:#f472b6" onclick="openGame('zombs')">
+          <span class="gcard-emoji">👑</span>
+          <div class="gcard-name">ZombsRoyale</div>
+          <div class="gcard-desc">Battle royale</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLASSICS -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-tag">Classics</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="game-grid">
+        <div class="gcard" style="--c:#00f5ff" onclick="openGame('mc')">
+          <span class="gcard-emoji">⛏️</span>
+          <div class="gcard-name">Minecraft</div>
+          <div class="gcard-desc">Eaglercraft</div>
+        </div>
+        <div class="gcard" style="--c:#ffe600" onclick="openGame('infinite')">
+          <span class="gcard-emoji">🔮</span>
+          <div class="gcard-name">Infinite Craft</div>
+          <div class="gcard-desc">Craft anything</div>
+        </div>
+        <div class="gcard" style="--c:#f472b6" onclick="openGame('chess')">
+          <span class="gcard-emoji">♟️</span>
+          <div class="gcard-name">Chess</div>
+          <div class="gcard-desc">vs Computer</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<!-- games -->
-<iframe id="hoodaFrame" src="https://www.hoodamath.com/"></iframe>
-<iframe id="playFrame" src="https://www.playtropolis.com"></iframe>
-<iframe id="gFrame" src="https://ghub-light.neocities.org/"></iframe>
-<iframe id="minecraftFrame" src="https://eaglercraft.com/"></iframe>
-<iframe id="infiniteFrame" src="https://infinite-craft.org/infinite-craft/"></iframe>
+<!-- IFRAMES -->
+<iframe id="hooda"   src="https://www.hoodamath.com/"></iframe>
+<iframe id="ghub"    src="https://ghub-light.neocities.org/"></iframe>
+<iframe id="play"    src="https://www.playtropolis.com/"></iframe>
+<iframe id="poki"    src="https://poki.com/"></iframe>
+<iframe id="crazy"   src="https://www.crazygames.com/"></iframe>
+<iframe id="itch"    src="https://itch.io/games/free/platform-web"></iframe>
+<iframe id="slither" src="https://slither.io/"></iframe>
+<iframe id="agar"    src="https://agar.io/"></iframe>
+<iframe id="krunker" src="https://krunker.io/"></iframe>
+<iframe id="skribbl" src="https://skribbl.io/"></iframe>
+<iframe id="paper"   src="https://paper-io.com/"></iframe>
+<iframe id="zombs"   src="https://zombsroyale.io/"></iframe>
+<iframe id="mc"      src="https://eaglercraft.com/"></iframe>
+<iframe id="infinite"src="https://infinite-craft.org/infinite-craft/"></iframe>
+<iframe id="chess"   src="https://www.chess.com/play/computer"></iframe>
 
 <script>
+const splash  = document.getElementById('splash');
+const home    = document.getElementById('home');
+const homeBtn = document.getElementById('homeBtn');
+const frames  = document.querySelectorAll('iframe');
 
-/* splash auto remove (fixes click issue) */
-const splash = document.getElementById("splashScreen");
-const home = document.getElementById("homeScreen");
+setTimeout(() => {
+  splash.style.opacity = '0';
+  setTimeout(() => {
+    splash.style.display = 'none';
+    home.style.display = 'flex';
+  }, 600);
+}, 2800);
 
-setTimeout(()=>{
-    splash.style.opacity="0";
-    setTimeout(()=>{
-        splash.style.display="none";
-        home.style.display="block";
-    },1000);
-},2000);
-
-/* CHAT → now goes to helloa.html */
-function openChat(){
-    window.location.href="helloa.html";
+function openChat() {
+  window.location.href = 'helloa.html';
 }
 
-/* games */
-const homeBtn=document.getElementById("homeBtn");
-const frames=document.querySelectorAll("iframe,embed");
-
-function openGame(id){
-    home.style.display="none";
-    frames.forEach(f=>f.style.display="none");
-    document.getElementById(id).style.display="block";
-    homeBtn.style.display="block";
+function openGame(id) {
+  home.style.display = 'none';
+  frames.forEach(f => f.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+  homeBtn.style.display = 'flex';
 }
 
-function goHome(){
-    home.style.display="block";
-    homeBtn.style.display="none";
-    frames.forEach(f=>f.style.display="none");
+function goHome() {
+  frames.forEach(f => f.style.display = 'none');
+  homeBtn.style.display = 'none';
+  home.style.display = 'flex';
+  document.querySelector('.scroll-area').scrollTop = 0;
 }
 
-/* panic */
-document.addEventListener("keydown",e=>{
-    if(e.key==="\\"){
-        window.location.href="https://classroom.google.com/";
-    }
+document.addEventListener('keydown', e => {
+  if (e.key === '\\') window.location.href = 'https://classroom.google.com/';
 });
-
 </script>
-
 </body>
 </html>
