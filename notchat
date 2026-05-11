@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant Widget</title>
+    <style>
+        /* CSS: The Look and Feel */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .chat-container { width: 400px; max-width: 90%; height: 600px; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        
+        .chat-header { background: #1a73e8; color: white; padding: 20px; text-align: center; font-weight: bold; }
+        
+        .chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        
+        .message { padding: 10px 15px; border-radius: 18px; max-width: 80%; line-height: 1.4; font-size: 14px; }
+        
+        .ai-message { background: #f1f3f4; color: #3c4043; align-self: flex-start; border-bottom-left-radius: 2px; }
+        
+        .user-message { background: #1a73e8; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+
+        .chat-input-area { border-top: 1px solid #eee; padding: 15px; display: flex; gap: 10px; }
+        
+        input { flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 20px; outline: none; transition: border 0.3s; }
+        input:focus { border-color: #1a73e8; }
+        
+        button { background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1557b0; }
+
+        .typing { font-style: italic; color: #70757a; font-size: 12px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">Gemini-Style Assistant</div>
+    <div id="chat-window" class="chat-window">
+        <div class="message ai-message">Hi there! I'm your AI assistant. How can I help you today?</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="user-input" placeholder="Ask me anything..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    // JS: The Logic
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+
+    function appendMessage(role, text) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${role}-message`;
+        msgDiv.innerText = text;
+        chatWindow.appendChild(msgDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        // 1. Show user message
+        appendMessage('user', text);
+        userInput.value = '';
+
+        // 2. Show a simple "thinking" state
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing';
+        typingIndicator.innerText = 'AI is thinking...';
+        chatWindow.appendChild(typingIndicator);
+
+        try {
+            // NOTE: Replace this with your actual API endpoint 
+            // This is a simulated response for now
+            setTimeout(() => {
+                chatWindow.removeChild(typingIndicator);
+                appendMessage('ai', "I'm currently in 'UI-only' mode. To make me talk like the real Gemini, you'll need to connect this script to a backend API!");
+            }, 1000);
+
+        } catch (error) {
+            chatWindow.removeChild(typingIndicator);
+            appendMessage('ai', "Sorry, I'm having trouble connecting right now.");
+        }
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+</script>
+
+</body>
+</html>
