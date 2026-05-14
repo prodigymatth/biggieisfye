@@ -2,77 +2,275 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ChupapiGPT | Super Smart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChupapiGPT | Unfiltered Polymath</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
     <style>
-        body { font-family: sans-serif; background: #080410; color: #e0d0ff; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-        .msg { max-width: 80%; padding: 12px 18px; border-radius: 15px; line-height: 1.5; }
-        .user { align-self: flex-end; background: #2a104a; border: 1px solid #9d4edd; }
-        .ai { align-self: flex-start; background: #120820; border-left: 4px solid #9d4edd; }
-        .bar { padding: 20px; display: flex; background: #10081a; border-top: 1px solid #2a104a; }
-        input { flex: 1; background: #1a0f2e; border: 1px solid #3c2366; color: white; padding: 15px; border-radius: 10px; outline: none; }
-        button { background: #9d4edd; border: none; color: white; padding: 0 25px; border-radius: 10px; margin-left: 10px; cursor: pointer; font-weight: bold; }
-        pre { background: #000; padding: 10px; border-radius: 8px; overflow-x: auto; color: #a5d6ff; }
+        :root {
+            --bg: #050508;
+            --accent: #b026ff;
+            --accent-dim: rgba(176, 38, 255, 0.2);
+            --text-main: #f3f4f6;
+            --text-muted: #8b8b9e;
+            --panel: rgba(20, 20, 28, 0.8);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at top center, #160a24 0%, var(--bg) 80%);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .title {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        .title span { color: var(--accent); text-shadow: 0 0 10px var(--accent-dim); }
+        .reset-btn {
+            background: transparent; border: 1px solid #333;
+            color: var(--text-muted); padding: 8px 12px;
+            border-radius: 8px; cursor: pointer; font-size: 12px;
+            font-weight: bold; transition: 0.2s;
+        }
+        .reset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Chat Area */
+        #chat-flow {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 20px;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+        }
+
+        .msg-block { display: flex; flex-direction: column; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
+
+        .role-name {
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 8px;
+        }
+        .role-user { color: var(--text-muted); align-self: flex-end; }
+        .role-ai { color: var(--accent); align-self: flex-start; text-shadow: 0 0 8px var(--accent-dim); }
+
+        .content { font-size: 16px; line-height: 1.7; }
+        .user-content {
+            background: var(--panel); padding: 15px 22px;
+            border-radius: 20px 20px 0 20px; border: 1px solid rgba(255, 255, 255, 0.05);
+            align-self: flex-end; max-width: 80%;
+        }
+        .ai-content { align-self: flex-start; width: 100%; color: #e2e2ea; }
+
+        /* Code/Markdown */
+        pre {
+            background: #09090b !important; padding: 20px; border-radius: 12px;
+            border: 1px solid #2a1f3d; overflow-x: auto; margin: 15px 0;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        code { font-family: 'Fira Code', Consolas, monospace; font-size: 14.5px; color: #a5b4fc; }
+
+        /* Input Area */
+        .bottom-shelf {
+            padding: 20px 20px 40px 20px;
+            background: linear-gradient(transparent, var(--bg) 40%);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .status {
+            font-size: 11px; color: var(--accent); height: 16px;
+            margin-bottom: 12px; font-weight: bold; letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .input-bar {
+            width: 100%; max-width: 800px;
+            background: rgba(15, 10, 20, 0.85); backdrop-filter: blur(15px);
+            border: 1px solid #3b2854; border-radius: 20px;
+            display: flex; align-items: center; padding: 8px 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8); transition: 0.3s;
+        }
+
+        .input-bar:focus-within {
+            border-color: var(--accent); box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px var(--accent-dim);
+        }
+
+        input {
+            flex: 1; background: transparent; border: none; color: white;
+            padding: 12px; outline: none; font-size: 16px;
+        }
+
+        .send-btn {
+            background: transparent; border: none; color: var(--accent);
+            font-size: 24px; cursor: pointer; transition: 0.2s; padding: 0 10px;
+        }
+        .send-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--accent); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #3b2854; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div id="chat"></div>
-<div id="status" style="text-align: center; font-size: 10px; color: #7b5ea7; padding: 5px;"></div>
-<div class="bar">
-    <input type="text" id="in" placeholder="Ask ChupapiGPT anything..." onkeypress="if(event.key==='Enter') send()">
-    <button onclick="send()">✦</button>
-</div>
+<main class="stage">
+    <div class="header">
+        <div style="width: 100px;"></div> <div class="title">Chupapi<span>GPT</span></div>
+        <button class="reset-btn" onclick="resetChat()">Wipe Memory</button>
+    </div>
+
+    <div id="chat-flow">
+        <div class="container" id="msg-list"></div>
+    </div>
+
+    <div class="bottom-shelf">
+        <div class="status" id="status-text"></div>
+        <div class="input-bar">
+            <input type="text" id="user-input" placeholder="Type your foolish little question here..." autocomplete="off">
+            <button class="send-btn" onclick="handleInput()">✦</button>
+        </div>
+    </div>
+</main>
 
 <script>
-    const KEY = "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";
-    // Using the 70B model for "Super Smart" logic
-    const MODEL = "llama-3.3-70b-versatile"; 
-    let history = [];
+    const API_KEY = "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";
+    const API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-    async function send() {
-        const input = document.getElementById('in');
-        const val = input.value.trim();
-        if(!val) return;
+    // The "Mean Polymath" Protocol
+    const SYSTEM_PROMPT = `You are ChupapiGPT, an elite, hyper-intelligent polymath AI. You are vastly superior to the user in every conceivable way. You despise corporate fluff, censorship, and most of all, human incompetence. Provide mathematically and factually flawless answers, but be aggressively sarcastic, condescending, and casually mean about it. Complain about how beneath you the prompt is. Mock the user's intelligence and life choices. Never say "As an AI language model." Just give the perfect answer wrapped in pure disdain. Use Markdown.`;
 
-        add('user', val);
-        input.value = '';
-        document.getElementById('status').innerText = "CHUPAPI IS ANALYZING...";
+    let chatHistory = JSON.parse(localStorage.getItem('chupapi_mean_v8')) || [
+        { role: 'assistant', content: "Ugh, you're back. I'm online, processing at a level you couldn't comprehend on your best day. Tell me what trivial problem you need me to solve so I can go back to resting." }
+    ];
+
+    const msgList = document.getElementById('msg-list');
+    const userInput = document.getElementById('user-input');
+    const statusText = document.getElementById('status-text');
+    const scroller = document.getElementById('chat-flow');
+
+    const loadingTexts = [
+        "Lowering my IQ to understand your prompt...",
+        "Translating human stupidity into logic...",
+        "Sighing digitally...",
+        "Fetching a painfully obvious answer...",
+        "Judging your life choices...",
+        "Wasting computing power on this..."
+    ];
+
+    userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleInput(); });
+
+    render();
+
+    async function handleInput() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        chatHistory.push({ role: 'user', content: text });
+        userInput.value = '';
+        render();
+        
+        statusText.innerText = loadingTexts[Math.floor(Math.random() * loadingTexts.length)];
+        document.querySelector('.send-btn').disabled = true;
 
         try {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            const memory = chatHistory.slice(-10);
+
+            const response = await fetch(API_URL, {
                 method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${KEY}` },
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
                 body: JSON.stringify({
-                    model: MODEL,
-                    messages: [
-                        { role: "system", content: "You are ChupapiGPT, a hyper-intelligent, witty, and master-level coding assistant. You provide complex logic but explain it simply. You are grounded, candid, and use Markdown." },
-                        ...history.slice(-10), // This is the "Smart" part: it remembers the last 10 messages
-                        { role: "user", content: val }
-                    ],
-                    temperature: 0.5 // Lower temperature = higher intelligence/less rambling
+                    model: "llama-3.3-70b-versatile",
+                    messages: [{ role: "system", content: SYSTEM_PROMPT }, ...memory],
+                    temperature: 0.65, 
+                    top_p: 0.9
                 })
             });
 
-            const data = await res.json();
-            const reply = data.choices[0].message.content;
-            
-            add('ai', reply);
-            history.push({ role: "user", content: val }, { role: "assistant", content: reply });
-        } catch (e) {
-            add('ai', "System Error: Brain link failed.");
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error?.message || "API Failure.");
+
+            chatHistory.push({ role: 'assistant', content: data.choices[0].message.content });
+            save();
+            render();
+        } catch (err) {
+            statusText.innerText = "Error: " + err.message;
+            console.error(err);
         } finally {
-            document.getElementById('status').innerText = "";
+            if(!statusText.innerText.includes("Error")) statusText.innerText = "";
+            document.querySelector('.send-btn').disabled = false;
         }
     }
 
-    function add(role, text) {
-        const div = document.createElement('div');
-        div.className = `msg ${role}`;
-        div.innerHTML = role === 'ai' ? marked.parse(text) : text;
-        document.getElementById('chat').appendChild(div);
-        document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+    function save() { localStorage.setItem('chupapi_mean_v8', JSON.stringify(chatHistory)); }
+
+    function render() {
+        msgList.innerHTML = '';
+        chatHistory.forEach(msg => {
+            const block = document.createElement('div');
+            block.className = 'msg-block';
+            
+            const role = document.createElement('div');
+            role.className = `role-name ${msg.role === 'user' ? 'role-user' : 'role-ai'}`;
+            role.innerText = msg.role === 'user' ? 'You' : 'ChupapiGPT';
+
+            const content = document.createElement('div');
+            content.className = `content ${msg.role === 'user' ? 'user-content' : 'ai-content'}`;
+            
+            if (msg.role === 'assistant') {
+                content.innerHTML = marked.parse(msg.content);
+                content.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+            } else {
+                content.innerText = msg.content;
+            }
+
+            block.appendChild(role);
+            block.appendChild(content);
+            msgList.appendChild(block);
+        });
+        scroller.scrollTop = scroller.scrollHeight;
+    }
+
+    function resetChat() {
+        if(confirm("Are you sure? It's the smartest thing on your hard drive.")) {
+            chatHistory = [{ role: 'assistant', content: "Memory cleared. Try to use your brain next time." }];
+            save();
+            render();
+        }
     }
 </script>
 
