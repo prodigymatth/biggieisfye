@@ -2,91 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Assistant Widget</title>
+    <title>ChupapiGPT | Super Smart</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        /* CSS: The Look and Feel */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        
-        .chat-container { width: 400px; max-width: 90%; height: 600px; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
-        
-        .chat-header { background: #1a73e8; color: white; padding: 20px; text-align: center; font-weight: bold; }
-        
-        .chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
-        
-        .message { padding: 10px 15px; border-radius: 18px; max-width: 80%; line-height: 1.4; font-size: 14px; }
-        
-        .ai-message { background: #f1f3f4; color: #3c4043; align-self: flex-start; border-bottom-left-radius: 2px; }
-        
-        .user-message { background: #1a73e8; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-
-        .chat-input-area { border-top: 1px solid #eee; padding: 15px; display: flex; gap: 10px; }
-        
-        input { flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 20px; outline: none; transition: border 0.3s; }
-        input:focus { border-color: #1a73e8; }
-        
-        button { background: #1a73e8; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #1557b0; }
-
-        .typing { font-style: italic; color: #70757a; font-size: 12px; margin-top: 5px; }
+        body { font-family: sans-serif; background: #080410; color: #e0d0ff; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .msg { max-width: 80%; padding: 12px 18px; border-radius: 15px; line-height: 1.5; }
+        .user { align-self: flex-end; background: #2a104a; border: 1px solid #9d4edd; }
+        .ai { align-self: flex-start; background: #120820; border-left: 4px solid #9d4edd; }
+        .bar { padding: 20px; display: flex; background: #10081a; border-top: 1px solid #2a104a; }
+        input { flex: 1; background: #1a0f2e; border: 1px solid #3c2366; color: white; padding: 15px; border-radius: 10px; outline: none; }
+        button { background: #9d4edd; border: none; color: white; padding: 0 25px; border-radius: 10px; margin-left: 10px; cursor: pointer; font-weight: bold; }
+        pre { background: #000; padding: 10px; border-radius: 8px; overflow-x: auto; color: #a5d6ff; }
     </style>
 </head>
 <body>
 
-<div class="chat-container">
-    <div class="chat-header">Gemini-Style Assistant</div>
-    <div id="chat-window" class="chat-window">
-        <div class="message ai-message">Hi there! I'm your AI assistant. How can I help you today?</div>
-    </div>
-    <div class="chat-input-area">
-        <input type="text" id="user-input" placeholder="Ask me anything..." onkeypress="handleKeyPress(event)">
-        <button onclick="sendMessage()">Send</button>
-    </div>
+<div id="chat"></div>
+<div id="status" style="text-align: center; font-size: 10px; color: #7b5ea7; padding: 5px;"></div>
+<div class="bar">
+    <input type="text" id="in" placeholder="Ask ChupapiGPT anything..." onkeypress="if(event.key==='Enter') send()">
+    <button onclick="send()">✦</button>
 </div>
 
 <script>
-    // JS: The Logic
-    const chatWindow = document.getElementById('chat-window');
-    const userInput = document.getElementById('user-input');
+    const KEY = "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";
+    // Using the 70B model for "Super Smart" logic
+    const MODEL = "llama-3.3-70b-versatile"; 
+    let history = [];
 
-    function appendMessage(role, text) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${role}-message`;
-        msgDiv.innerText = text;
-        chatWindow.appendChild(msgDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
+    async function send() {
+        const input = document.getElementById('in');
+        const val = input.value.trim();
+        if(!val) return;
 
-    async function sendMessage() {
-        const text = userInput.value.trim();
-        if (!text) return;
-
-        // 1. Show user message
-        appendMessage('user', text);
-        userInput.value = '';
-
-        // 2. Show a simple "thinking" state
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'typing';
-        typingIndicator.innerText = 'AI is thinking...';
-        chatWindow.appendChild(typingIndicator);
+        add('user', val);
+        input.value = '';
+        document.getElementById('status').innerText = "CHUPAPI IS ANALYZING...";
 
         try {
-            // NOTE: Replace this with your actual API endpoint 
-            // This is a simulated response for now
-            setTimeout(() => {
-                chatWindow.removeChild(typingIndicator);
-                appendMessage('ai', "I'm currently in 'UI-only' mode. To make me talk like the real Gemini, you'll need to connect this script to a backend API!");
-            }, 1000);
+            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${KEY}` },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [
+                        { role: "system", content: "You are ChupapiGPT, a hyper-intelligent, witty, and master-level coding assistant. You provide complex logic but explain it simply. You are grounded, candid, and use Markdown." },
+                        ...history.slice(-10), // This is the "Smart" part: it remembers the last 10 messages
+                        { role: "user", content: val }
+                    ],
+                    temperature: 0.5 // Lower temperature = higher intelligence/less rambling
+                })
+            });
 
-        } catch (error) {
-            chatWindow.removeChild(typingIndicator);
-            appendMessage('ai', "Sorry, I'm having trouble connecting right now.");
+            const data = await res.json();
+            const reply = data.choices[0].message.content;
+            
+            add('ai', reply);
+            history.push({ role: "user", content: val }, { role: "assistant", content: reply });
+        } catch (e) {
+            add('ai', "System Error: Brain link failed.");
+        } finally {
+            document.getElementById('status').innerText = "";
         }
     }
 
-    function handleKeyPress(e) {
-        if (e.key === 'Enter') sendMessage();
+    function add(role, text) {
+        const div = document.createElement('div');
+        div.className = `msg ${role}`;
+        div.innerHTML = role === 'ai' ? marked.parse(text) : text;
+        document.getElementById('chat').appendChild(div);
+        document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
     }
 </script>
 
